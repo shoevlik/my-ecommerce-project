@@ -45,9 +45,23 @@ def test_remove_item_errors(sample_cart, sample_product):
     with pytest.raises(ValueError, match="Нельзя удалить больше товаров, чем есть в корзине"):
         sample_cart.remove_item("prod_1", 3)
 
-def test_calculate_total(sample_cart, sample_product):
-    assert sample_cart.calculate_total({"prod_1": sample_product}) == 0.0
+def test_calculate_total_with_valid_promo(sample_cart, sample_product):
     sample_cart.add_item(sample_product, 2)
     catalog = {"prod_1": sample_product}
     assert sample_cart.calculate_total(catalog) == 100000.0
-    assert sample_cart.calculate_total({}) == 0.0
+    assert sample_cart.calculate_total(catalog, "SALE10") == pytest.approx(90000.0)
+
+def test_calculate_total_with_lowercase_promo(sample_cart, sample_product):
+    sample_cart.add_item(sample_product, 1)
+    catalog = {"prod_1": sample_product}
+    assert sample_cart.calculate_total(catalog, "sale10") == pytest.approx(45000.0)
+
+def test_calculate_total_with_invalid_promo(sample_cart, sample_product):
+    sample_cart.add_item(sample_product, 1)
+    catalog = {"prod_1": sample_product}
+    with pytest.raises(ValueError, match="Неверный промокод"):
+        sample_cart.calculate_total(catalog, "SALE20")
+
+def test_calculate_total_with_promo_on_empty_cart(sample_cart, sample_product):
+    catalog = {"prod_1": sample_product}
+    assert sample_cart.calculate_total(catalog, "SALE10") == 0.0

@@ -1,6 +1,9 @@
 from src.product import Product
 
 class ShoppingCart:
+    promo_code = "SALE10"
+    discount = 0.10
+
     def __init__(self):
         self.items = {}
 
@@ -30,9 +33,13 @@ class ShoppingCart:
         else:
             self.items[product_id] -= quantity
 
-    def calculate_total(self, catalog: dict[str, Product]) -> float:
+    def calculate_total(self, catalog: dict[str, Product], promo_code: str = None) -> float:
         total = 0.0
         for product_id, quantity in self.items.items():
             if product_id in catalog:
                 total += catalog[product_id].price * quantity
+        if promo_code:
+            if promo_code.upper() != self.promo_code:
+                raise ValueError(f"Неверный промокод")
+            total = total * (1 - self.discount) 
         return total
