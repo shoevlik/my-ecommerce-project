@@ -5,3 +5,8 @@ __pycache__/
 htmlcov/
 venv/
 env/
+
+target/
+*.class
+.idea/
+*.iml
